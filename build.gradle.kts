@@ -15,7 +15,7 @@ labyMod {
         namespace = "clearwater"
         displayName = "Clear Water Addon"
         author = "LabyMod"
-        description = "Removes the fog under water/lava"
+        description = "Removes the fog under water"
         minecraftVersion = "*"
         version = System.getenv().getOrDefault("VERSION", "0.0.1")
     }

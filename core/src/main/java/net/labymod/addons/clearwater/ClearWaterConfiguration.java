@@ -14,7 +14,6 @@ public class ClearWaterConfiguration extends AddonConfig {
   @SwitchSetting
   private final ConfigProperty<Boolean> clearWater = new ConfigProperty<>(true);
 
-  @SwitchSetting
   private final ConfigProperty<Boolean> clearLava = new ConfigProperty<>(false);
 
   @Override
