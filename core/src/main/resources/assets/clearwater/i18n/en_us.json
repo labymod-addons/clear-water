@@ -1,0 +1,16 @@
+{
+  "clearwater": {
+    "settings": {
+      "name": "Clear Water",
+      "enabled": {
+        "name": "Enabled"
+      },
+      "clearWater": {
+        "name": "Clear Water"
+      },
+      "clearLava": {
+        "name": "Clear Lava"
+      }
+    }
+  }
+}
