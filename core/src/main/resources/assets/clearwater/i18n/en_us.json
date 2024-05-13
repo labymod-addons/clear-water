@@ -7,6 +7,12 @@
       },
       "clearWater": {
         "name": "Clear Water"
+      },
+      "clearLava": {
+        "name": "Clear Lava"
+      },
+      "clearPowderedSnow": {
+        "name": "Clear Powdered Snow"
       }
     }
   }

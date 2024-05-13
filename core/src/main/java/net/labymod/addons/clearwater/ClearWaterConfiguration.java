@@ -19,6 +19,7 @@ package net.labymod.addons.clearwater;
 import net.labymod.api.addon.AddonConfig;
 import net.labymod.api.client.gui.screen.widget.widgets.input.SwitchWidget.SwitchSetting;
 import net.labymod.api.configuration.loader.annotation.ConfigName;
+import net.labymod.api.configuration.loader.annotation.VersionCompatibility;
 import net.labymod.api.configuration.loader.property.ConfigProperty;
 
 @ConfigName("settings")
@@ -30,7 +31,12 @@ public class ClearWaterConfiguration extends AddonConfig {
   @SwitchSetting
   private final ConfigProperty<Boolean> clearWater = new ConfigProperty<>(true);
 
+  @SwitchSetting
   private final ConfigProperty<Boolean> clearLava = new ConfigProperty<>(false);
+
+  @SwitchSetting
+  @VersionCompatibility("1.17<*")
+  private final ConfigProperty<Boolean> clearPowderedSnow = new ConfigProperty<>(false);
 
   @Override
   public ConfigProperty<Boolean> enabled() {
@@ -43,5 +49,9 @@ public class ClearWaterConfiguration extends AddonConfig {
 
   public ConfigProperty<Boolean> clearLava() {
     return this.clearLava;
+  }
+
+  public ConfigProperty<Boolean> clearPowderedSnow() {
+    return this.clearPowderedSnow;
   }
 }

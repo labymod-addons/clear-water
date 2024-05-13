@@ -18,6 +18,7 @@ package net.labymod.addons.clearwater.v1_16_5.mixins;
 
 import net.labymod.addons.clearwater.ClearWaterAddon;
 import net.labymod.addons.clearwater.ClearWaterConfiguration;
+import net.labymod.api.configuration.loader.property.ConfigProperty;
 import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.tags.FluidTags;
@@ -31,20 +32,27 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class MixinFogRenderer {
 
   @Inject(method = "setupFog", at = @At("HEAD"), cancellable = true)
-  private static void clearwater_setupFog(Camera camera, FogRenderer.FogMode fogMode, float farPlaneDistance, boolean bl, CallbackInfo ci) {
-    ClearWaterConfiguration config = ClearWaterAddon.get().configuration();
-
-    if (!config.enabled().get()) {
+  private static void clearwater_setupFog(
+      Camera camera,
+      FogRenderer.FogMode fogMode,
+      float farPlaneDistance,
+      boolean bl,
+      CallbackInfo ci
+  ) {
+    ClearWaterConfiguration configuration = ClearWaterAddon.get().configuration();
+    if (!configuration.enabled().get()) {
       return;
     }
 
-    FluidState fluid = camera.getFluidInCamera();
-
-    if (fluid.is(FluidTags.WATER) && config.clearWater().get()) {
-      ci.cancel();
+    FluidState fluidState = camera.getFluidInCamera();
+    ConfigProperty<Boolean> configProperty = null;
+    if (fluidState.is(FluidTags.WATER)) {
+      configProperty = configuration.clearWater();
+    } else if (fluidState.is(FluidTags.LAVA)) {
+      configProperty = configuration.clearLava();
     }
 
-    if (fluid.is(FluidTags.LAVA) && config.clearLava().get()) {
+    if (configProperty != null && configProperty.get()) {
       ci.cancel();
     }
   }

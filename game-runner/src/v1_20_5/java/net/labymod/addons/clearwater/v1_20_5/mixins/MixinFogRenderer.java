@@ -18,6 +18,7 @@ package net.labymod.addons.clearwater.v1_20_5.mixins;
 
 import net.labymod.addons.clearwater.ClearWaterAddon;
 import net.labymod.addons.clearwater.ClearWaterConfiguration;
+import net.labymod.api.configuration.loader.property.ConfigProperty;
 import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.world.level.material.FogType;
@@ -30,21 +31,28 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class MixinFogRenderer {
 
   @Inject(method = "setupFog", at = @At("HEAD"), cancellable = true)
-  private static void clearwater_setupFog(Camera camera, FogRenderer.FogMode fogMode,
-      float farPlaneDistance, boolean bl, float f, CallbackInfo ci) {
-    ClearWaterConfiguration config = ClearWaterAddon.get().configuration();
-
-    if (!config.enabled().get()) {
+  private static void clearwater_setupFog(
+      Camera camera,
+      FogRenderer.FogMode fogMode,
+      float farPlaneDistance,
+      boolean bl,
+      float f,
+      CallbackInfo ci
+  ) {
+    ClearWaterConfiguration configuration = ClearWaterAddon.get().configuration();
+    if (!configuration.enabled().get()) {
       return;
     }
 
-    FogType fluid = camera.getFluidInCamera();
+    FogType fogType = camera.getFluidInCamera();
+    ConfigProperty<Boolean> configProperty = switch (fogType) {
+      case WATER -> configuration.clearWater();
+      case LAVA -> configuration.clearLava();
+      case POWDER_SNOW -> configuration.clearPowderedSnow();
+      default -> null;
+    };
 
-    if (fluid == FogType.WATER && config.clearWater().get()) {
-      ci.cancel();
-    }
-
-    if (fluid == FogType.LAVA && config.clearLava().get()) {
+    if (configProperty != null && configProperty.get()) {
       ci.cancel();
     }
   }

@@ -32,7 +32,6 @@ public abstract class MixinEntityRenderer {
   private Material getMaterial(Block block) {
     ClearWaterConfiguration config = ClearWaterAddon.get().configuration();
     Material material = block.getMaterial();
-
     if (!config.enabled().get()) {
       return material;
     }
