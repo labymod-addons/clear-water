@@ -1,7 +1,7 @@
 rootProject.name = "clearwater"
 
 pluginManagement {
-    val labyGradlePluginVersion = "0.3.36"
+    val labyGradlePluginVersion = "0.3.50"
     plugins {
         id("net.labymod.gradle") version (labyGradlePluginVersion)
     }
