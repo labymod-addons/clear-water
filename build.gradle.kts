@@ -1,3 +1,5 @@
+import net.labymod.labygradle.common.extension.model.labymod.ReleaseChannels
+
 plugins {
     id("net.labymod.labygradle")
     id("net.labymod.labygradle.addon")
@@ -28,6 +30,7 @@ labyMod {
         author = "LabyMod"
         minecraftVersion = "*"
         version = rootProject.version.toString()
+        releaseChannel = ReleaseChannels.SNAPSHOT
     }
 }
 
