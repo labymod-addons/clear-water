@@ -1,0 +1,19 @@
+{
+    "clearwater": {
+        "settings": {
+            "name": "",
+            "enabled": {
+                "name": ""
+            },
+            "clearWater": {
+                "name": ""
+            },
+            "clearLava": {
+                "name": ""
+            },
+            "clearPowderedSnow": {
+                "name": ""
+            }
+        }
+    }
+}
