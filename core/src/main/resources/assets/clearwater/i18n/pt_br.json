@@ -1,7 +1,10 @@
 {
     "clearwater": {
         "settings": {
-            "name": "Água Limpa"
+            "name": "Água Limpa",
+            "enabled": {
+                "name": "Ativado"
+            }
         }
     }
 }
