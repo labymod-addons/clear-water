@@ -1,1 +1,16 @@
-{}
+{
+    "clearwater": {
+        "settings": {
+            "name": "Klart Vand",
+            "enabled": {
+                "name": "Aktiveret"
+            },
+            "clearWater": {
+                "name": "Klart Vand"
+            },
+            "clearLava": {
+                "name": "Klart Lava"
+            }
+        }
+    }
+}
