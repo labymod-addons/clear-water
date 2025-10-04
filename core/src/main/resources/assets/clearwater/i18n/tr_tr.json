@@ -10,6 +10,9 @@
             },
             "clearLava": {
                 "name": "Berrak Lav"
+            },
+            "clearPowderedSnow": {
+                "name": "Toz Karı Temizle"
             }
         }
     }
