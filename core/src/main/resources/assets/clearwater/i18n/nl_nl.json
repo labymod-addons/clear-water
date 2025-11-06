@@ -1,1 +1,19 @@
-{}
+{
+    "clearwater": {
+        "settings": {
+            "name": "Helder water",
+            "enabled": {
+                "name": "Ingeschakeld"
+            },
+            "clearWater": {
+                "name": "Helder water"
+            },
+            "clearLava": {
+                "name": "Helder lava"
+            },
+            "clearPowderedSnow": {
+                "name": "Poedersneeuw wissen"
+            }
+        }
+    }
+}
