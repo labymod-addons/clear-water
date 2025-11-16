@@ -1,1 +1,16 @@
-{}
+{
+    "clearwater": {
+        "settings": {
+            "name": "Berrak Su",
+            "enabled": {
+                "name": "Aktif"
+            },
+            "clearWater": {
+                "name": "Berrak Su"
+            },
+            "clearLava": {
+                "name": "Berrak Lav"
+            }
+        }
+    }
+}
