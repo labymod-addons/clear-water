@@ -1,1 +1,19 @@
-{}
+{
+    "clearwater": {
+        "settings": {
+            "name": "Clear Water",
+            "enabled": {
+                "name": "Włączone"
+            },
+            "clearWater": {
+                "name": "Przezroczysta Woda"
+            },
+            "clearLava": {
+                "name": "Przezroczysta Lawa"
+            },
+            "clearPowderedSnow": {
+                "name": "Przezroczysty Sypki Śnieg"
+            }
+        }
+    }
+}
