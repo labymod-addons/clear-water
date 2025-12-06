@@ -1,1 +1,19 @@
-{}
+{
+    "clearwater": {
+        "settings": {
+            "name": "Clear Water",
+            "enabled": {
+                "name": "Включено"
+            },
+            "clearWater": {
+                "name": "Прозрачная вода"
+            },
+            "clearLava": {
+                "name": "Прозрачная лава"
+            },
+            "clearPowderedSnow": {
+                "name": "Прозрачный рыхлый снег"
+            }
+        }
+    }
+}
