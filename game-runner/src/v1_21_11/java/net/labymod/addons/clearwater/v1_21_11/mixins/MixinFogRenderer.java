@@ -14,38 +14,42 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package net.labymod.addons.clearwater.v1_19_3.mixins;
+package net.labymod.addons.clearwater.v1_21_11.mixins;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
+import com.llamalad7.mixinextras.sugar.ref.LocalRef;
+import java.nio.ByteBuffer;
 import net.labymod.addons.clearwater.ClearWaterAddon;
 import net.labymod.addons.clearwater.ClearWaterConfiguration;
 import net.labymod.api.configuration.loader.property.ConfigProperty;
-import net.minecraft.client.Camera;
-import net.minecraft.client.renderer.FogRenderer;
+import net.minecraft.client.renderer.fog.FogRenderer;
 import net.minecraft.world.level.material.FogType;
+import org.joml.Vector4f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(FogRenderer.class)
 public abstract class MixinFogRenderer {
-
-  @Inject(method = "setupFog", at = @At("HEAD"), cancellable = true)
-  private static void clearwater_setupFog(
-      Camera camera,
-      FogRenderer.FogMode fogMode,
-      float farPlaneDistance,
-      boolean bl,
-      float f,
-      CallbackInfo ci
+  @WrapOperation(
+      method = "setupFog",
+      at = @At(
+          value = "INVOKE",
+          target = "Lnet/minecraft/client/renderer/fog/FogRenderer;updateBuffer(Ljava/nio/ByteBuffer;ILorg/joml/Vector4f;FFFFFF)V"
+      )
+  )
+  private void clearwater_neutralizeFogBeforeUpdateBuffer(
+      FogRenderer instance, ByteBuffer $$0, int $$1, Vector4f $$2, float $$3, float environmentalStart, float environmentalEnd,
+      float renderDistanceStart, float renderDistanceEnd, float skyEnd, Operation<Void> original, @Local LocalRef<FogType> fogType
   ) {
     ClearWaterConfiguration configuration = ClearWaterAddon.get().configuration();
     if (!configuration.enabled().get()) {
+      original.call(instance, $$0, $$1, $$2, $$3, environmentalStart, environmentalEnd, renderDistanceStart, renderDistanceEnd, skyEnd);
       return;
     }
 
-    FogType fogType = camera.getFluidInCamera();
-    ConfigProperty<Boolean> configProperty = switch (fogType) {
+    ConfigProperty<Boolean> configProperty = switch (fogType.get()) {
       case WATER -> configuration.clearWater();
       case LAVA -> configuration.clearLava();
       case POWDER_SNOW -> configuration.clearPowderedSnow();
@@ -53,7 +57,9 @@ public abstract class MixinFogRenderer {
     };
 
     if (configProperty != null && configProperty.get()) {
-      ci.cancel();
+      original.call(instance, $$0, $$1, $$2, $$3, Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE);
+    } else {
+      original.call(instance, $$0, $$1, $$2, $$3, environmentalStart, environmentalEnd, renderDistanceStart, renderDistanceEnd, skyEnd);
     }
   }
 }
