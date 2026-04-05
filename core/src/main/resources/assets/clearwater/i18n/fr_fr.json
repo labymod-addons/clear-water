@@ -1,1 +1,13 @@
-{}
+{
+    "clearwater": {
+        "settings": {
+            "name": "Eau claire",
+            "enabled": {
+                "name": "Activé"
+            },
+            "clearWater": {
+                "name": "Eau claire"
+            }
+        }
+    }
+}
