@@ -10,6 +10,9 @@
             },
             "clearLava": {
                 "name": "Lave claire"
+            },
+            "clearPowderedSnow": {
+                "name": "Neige poudreuse claire"
             }
         }
     }
