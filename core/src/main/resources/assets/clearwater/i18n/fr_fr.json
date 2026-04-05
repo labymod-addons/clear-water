@@ -7,6 +7,9 @@
             },
             "clearWater": {
                 "name": "Eau claire"
+            },
+            "clearLava": {
+                "name": "Lave claire"
             }
         }
     }
