@@ -1,7 +1,13 @@
 {
     "clearwater": {
         "settings": {
-            "name": "ماء صافٍ"
+            "name": "ماء صافٍ",
+            "enabled": {
+                "name": "مفعّل"
+            },
+            "clearWater": {
+                "name": "ماء صافٍ"
+            }
         }
     }
 }
