@@ -40,4 +40,11 @@ subprojects {
 
     group = rootProject.group
     version = rootProject.version
+
+    // The version modules compile against the Java version their Minecraft version runs on, so the
+    // shared modules have to stay below the oldest of them instead of following the build JDK.
+    extensions.findByType(JavaPluginExtension::class.java)?.apply {
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
+    }
 }
