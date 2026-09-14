@@ -16,50 +16,67 @@
 
 package net.labymod.addons.clearwater.v1_21_11.mixins;
 
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
-import com.llamalad7.mixinextras.sugar.ref.LocalRef;
-import java.nio.ByteBuffer;
 import net.labymod.addons.clearwater.ClearWaterAddon;
 import net.labymod.addons.clearwater.ClearWaterConfiguration;
 import net.labymod.api.configuration.loader.property.ConfigProperty;
+import net.minecraft.client.Camera;
+import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.fog.FogData;
 import net.minecraft.client.renderer.fog.FogRenderer;
 import net.minecraft.world.level.material.FogType;
 import org.joml.Vector4f;
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(FogRenderer.class)
 public abstract class MixinFogRenderer {
-  @WrapOperation(
+
+  // setupFog fills a FogData and reads the fields back out of it for the buffer write, so clearing
+  // the object covers that write as well.
+  //
+  // This sits on the last field write instead of around the buffer write because Sodium reads the
+  // same object from a RETURN injector and copies the ranges into the uniform it renders chunks
+  // with. Replacing only the arguments of the write left that copy untouched, which kept the fog
+  // on the terrain while hand, entities and particles lost it.
+  @Inject(
       method = "setupFog",
       at = @At(
-          value = "INVOKE",
-          target = "Lnet/minecraft/client/renderer/fog/FogRenderer;updateBuffer(Ljava/nio/ByteBuffer;ILorg/joml/Vector4f;FFFFFF)V"
+          value = "FIELD",
+          target = "Lnet/minecraft/client/renderer/fog/FogData;renderDistanceEnd:F",
+          opcode = Opcodes.PUTFIELD,
+          shift = At.Shift.AFTER
       )
   )
   private void clearwater_neutralizeFogBeforeUpdateBuffer(
-      FogRenderer instance, ByteBuffer $$0, int $$1, Vector4f $$2, float $$3, float environmentalStart, float environmentalEnd,
-      float renderDistanceStart, float renderDistanceEnd, float skyEnd, Operation<Void> original, @Local LocalRef<FogType> fogType
+      Camera camera, int renderDistanceInChunks, DeltaTracker deltaTracker,
+      float darkenWorldAmount, ClientLevel level,
+      CallbackInfoReturnable<Vector4f> callback, @Local FogType fogType, @Local FogData fog
   ) {
     ClearWaterConfiguration configuration = ClearWaterAddon.get().configuration();
     if (!configuration.enabled().get()) {
-      original.call(instance, $$0, $$1, $$2, $$3, environmentalStart, environmentalEnd, renderDistanceStart, renderDistanceEnd, skyEnd);
       return;
     }
 
-    ConfigProperty<Boolean> configProperty = switch (fogType.get()) {
+    ConfigProperty<Boolean> configProperty = switch (fogType) {
       case WATER -> configuration.clearWater();
       case LAVA -> configuration.clearLava();
       case POWDER_SNOW -> configuration.clearPowderedSnow();
       default -> null;
     };
 
-    if (configProperty != null && configProperty.get()) {
-      original.call(instance, $$0, $$1, $$2, $$3, Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE);
-    } else {
-      original.call(instance, $$0, $$1, $$2, $$3, environmentalStart, environmentalEnd, renderDistanceStart, renderDistanceEnd, skyEnd);
+    if (configProperty == null || !configProperty.get()) {
+      return;
     }
+
+    fog.environmentalEnd = Float.MAX_VALUE;
+    fog.renderDistanceStart = Float.MAX_VALUE;
+    fog.renderDistanceEnd = Float.MAX_VALUE;
+    fog.skyEnd = Float.MAX_VALUE;
+    fog.cloudEnd = Float.MAX_VALUE;
   }
 }
