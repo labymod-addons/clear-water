@@ -1,1 +1,9 @@
-{}
+{
+    "clearwater": {
+        "settings": {
+            "enabled": {
+                "name": "Увімкнено"
+            }
+        }
+    }
+}
