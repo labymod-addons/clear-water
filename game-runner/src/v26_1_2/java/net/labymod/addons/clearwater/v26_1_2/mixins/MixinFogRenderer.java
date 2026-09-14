@@ -26,6 +26,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.fog.FogData;
 import net.minecraft.client.renderer.fog.FogRenderer;
 import net.minecraft.world.level.material.FogType;
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -35,13 +36,27 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class MixinFogRenderer {
 
   // Since 26.1 setupFog no longer writes the buffer itself, it returns the fog the frame is
-  // rendered with and the game hands that back to updateBuffer later. Pushing the bounds out here
-  // is the same as neutralizing the buffer write was before, and the colour stays untouched
-  // because the sky still reads it.
-  @Inject(method = "setupFog", at = @At("RETURN"))
+  // rendered with and the game hands that back to updateBuffer later. Pushing the bounds out on
+  // that object is the same as neutralizing the buffer write was before, and the colour stays
+  // untouched because the sky still reads it.
+  //
+  // This sits on the last write of the method instead of its RETURN because Sodium reads the same
+  // object from a RETURN injector and copies the ranges into the uniform it renders chunks with.
+  // Writing after that callback would only reach the vanilla pipeline, so the terrain would keep
+  // the fog while hand, entities and particles lose it.
+  @Inject(
+      method = "setupFog",
+      at = @At(
+          value = "FIELD",
+          target = "Lnet/minecraft/client/renderer/fog/FogData;renderDistanceEnd:F",
+          opcode = Opcodes.PUTFIELD,
+          shift = At.Shift.AFTER
+      )
+  )
   private void clearwater_neutralizeFogAfterSetup(
       Camera camera, int renderDistanceInChunks, DeltaTracker deltaTracker, float darkenWorldAmount,
-      ClientLevel level, CallbackInfoReturnable<FogData> callback, @Local FogType fogType
+      ClientLevel level, CallbackInfoReturnable<FogData> callback, @Local FogType fogType,
+      @Local FogData fog
   ) {
     ClearWaterConfiguration configuration = ClearWaterAddon.get().configuration();
     if (!configuration.enabled().get()) {
@@ -59,7 +74,6 @@ public abstract class MixinFogRenderer {
       return;
     }
 
-    FogData fog = callback.getReturnValue();
     fog.environmentalEnd = Float.MAX_VALUE;
     fog.renderDistanceStart = Float.MAX_VALUE;
     fog.renderDistanceEnd = Float.MAX_VALUE;
