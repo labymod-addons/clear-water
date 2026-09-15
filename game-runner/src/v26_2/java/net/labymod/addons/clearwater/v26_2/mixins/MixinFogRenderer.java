@@ -14,7 +14,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package net.labymod.addons.clearwater.v1_21_8.mixins;
+package net.labymod.addons.clearwater.v26_2.mixins;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import net.labymod.addons.clearwater.ClearWaterAddon;
@@ -26,7 +26,6 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.fog.FogData;
 import net.minecraft.client.renderer.fog.FogRenderer;
 import net.minecraft.world.level.material.FogType;
-import org.joml.Vector4f;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -36,13 +35,15 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(FogRenderer.class)
 public abstract class MixinFogRenderer {
 
-  // setupFog fills a FogData and reads the fields back out of it for the buffer write, so clearing
-  // the object covers that write as well.
+  // Since 26.1 setupFog no longer writes the buffer itself, it returns the fog the frame is
+  // rendered with and the game hands that back to updateBuffer later. Pushing the bounds out on
+  // that object is the same as neutralizing the buffer write was before, and the colour stays
+  // untouched because the sky still reads it.
   //
-  // This sits on the last field write instead of around the buffer write because Sodium reads the
-  // same object from a RETURN injector and copies the ranges into the uniform it renders chunks
-  // with. Replacing only the arguments of the write left that copy untouched, which kept the fog
-  // on the terrain while hand, entities and particles lost it.
+  // This sits on the last write of the method instead of its RETURN because Sodium reads the same
+  // object from a RETURN injector and copies the ranges into the uniform it renders chunks with.
+  // Writing after that callback would only reach the vanilla pipeline, so the terrain would keep
+  // the fog while hand, entities and particles lose it.
   @Inject(
       method = "setupFog",
       at = @At(
@@ -52,10 +53,10 @@ public abstract class MixinFogRenderer {
           shift = At.Shift.AFTER
       )
   )
-  private void clearwater_neutralizeFogBeforeUpdateBuffer(
-      Camera camera, int renderDistanceInChunks, boolean isFoggy, DeltaTracker deltaTracker,
-      float darkenWorldAmount, ClientLevel level,
-      CallbackInfoReturnable<Vector4f> callback, @Local FogType fogType, @Local FogData fog
+  private void clearwater_neutralizeFogAfterSetup(
+      Camera camera, int renderDistanceInChunks, DeltaTracker deltaTracker, float darkenWorldAmount,
+      ClientLevel level, CallbackInfoReturnable<FogData> callback, @Local FogType fogType,
+      @Local FogData fog
   ) {
     ClearWaterConfiguration configuration = ClearWaterAddon.get().configuration();
     if (!configuration.enabled().get()) {
