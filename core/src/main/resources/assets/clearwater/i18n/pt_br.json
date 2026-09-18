@@ -4,6 +4,15 @@
             "name": "Água Limpa",
             "enabled": {
                 "name": "Ativado"
+            },
+            "clearWater": {
+                "name": "Água Limpa"
+            },
+            "clearLava": {
+                "name": "Lava Limpa"
+            },
+            "clearPowderedSnow": {
+                "name": "Neve em Pó Limpa"
             }
         }
     }
